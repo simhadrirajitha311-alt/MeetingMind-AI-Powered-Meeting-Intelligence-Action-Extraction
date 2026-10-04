@@ -1,0 +1,30 @@
+ version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meetingmind-backend
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+    working_dir: /workspace
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: development
+      DATABASE_URL: sqlite:///./meetingmind.db
+      CORS_ORIGINS: http://localhost:5173
+    volumes:
+      - .:/workspace
+
+  frontend:
+    image: node:20-alpine
+    container_name: meetingmind-frontend
+    working_dir: /workspace/frontend
+    command: sh -lc "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    volumes:
+      - .:/workspace
